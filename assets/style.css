@@ -1,0 +1,23 @@
+header {
+    background-image: linear-gradient(to right, #2557cc, #00084f);
+}
+
+button {
+    background-color: #4287f5;
+    border: none;
+    border-radius: 4px;
+    padding: 8px;
+}
+
+.card {
+    background-color: #30476b;
+}
+
+.card-body {
+    padding-left: 0;
+}
+
+.list-group-item {
+    background-color: lightgray;
+    text-align: center;
+}
