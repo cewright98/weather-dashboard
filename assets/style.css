@@ -9,6 +9,10 @@ button {
     padding: 8px;
 }
 
+.city-name {
+    text-transform: capitalize;
+}
+
 .card {
     background-color: #30476b;
 }
