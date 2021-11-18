@@ -32,12 +32,18 @@ button {
     text-align: center;
 }
 
+span {
+    padding: 5px 8px 5px 8px;
+    border-radius: 15%;
+    color: white;
+}
+
 .favorable {
     background-color: green;
 }
 
 .moderate {
-    background-color: yellow;
+    background-color: orange;
 }
 
 .severe {

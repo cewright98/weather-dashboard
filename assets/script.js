@@ -1,6 +1,7 @@
 var searchButton = document.querySelector("#search-button");
 var userInput = document.querySelector("#user-input");
 var weatherHeader = document.querySelector("#weather-header");
+var currentIcon = document.querySelector("#current-icon");
 var currentTemp = document.querySelector("#current-temp");
 var currentWind = document.querySelector("#current-wind");
 var currentHumidity = document.querySelector("#current-humidity");
@@ -35,12 +36,20 @@ var getCurrentWeather = function(lat, lon) {
     fetch(apiUrl).then(function(response) {
         if (response.ok) {
             response.json().then(function(data) {
+                console.log(data);
                 // get values for weather objects
+
+                // get icon
+                currentIcon.style.visibility = "visible";
+                currentIcon.src = "http://openweathermap.org/img/wn/" + data.current.weather[0].icon + "@2x.png";
+                
                 var uvIndex = data.current.uvi;
                 currentTemp.textContent = "Temp: " + data.current.temp + " °F";
                 currentWind.textContent = "Wind: " + data.current.wind_speed + " MPH";
                 currentHumidity.textContent = "Humidity: " + data.current.humidity + " %";
                 currentUvIndex.textContent = uvIndex;
+
+                // run function to color code uv index
                 checkUv(uvIndex);
             });
         } 
@@ -73,8 +82,14 @@ var getFutureWeather = function(lat, lon) {
                 // loop to get values for weather objects for each card
                 var index = 6;
                 for (var i = 1; i < 6; i++) {
+                    // get date
                     dateTime = data.list[index].dt_txt;
                     date = dateTime.split(" ", 2);
+
+                    // get icon
+                    document.querySelector("#card-icon-" + i).style.visibility = "visible";
+                    document.querySelector("#card-icon-" + i).src = "http://openweathermap.org/img/wn/" + data.list[index].weather[0].icon + "@2x.png";
+                    
                     document.querySelector("#card-date-" + i).textContent = date[0];
                     document.querySelector("#card-temp-" + i).textContent = "Temp: " + data.list[index].main.temp + " °F";
                     document.querySelector("#card-wind-" + i).textContent = "Wind: " + data.list[index].wind.speed + " MPH";
@@ -98,3 +113,8 @@ searchButton.addEventListener("click", function()   {
         window.alert("Please enter a city");
     }
 });
+
+currentIcon.style.visibility = "hidden";
+for (var i = 1; i < 6; i++) {
+    document.querySelector("#card-icon-" + i).style.visibility = "hidden";
+}
