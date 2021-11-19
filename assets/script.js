@@ -7,9 +7,12 @@ var currentWind = document.querySelector("#current-wind");
 var currentHumidity = document.querySelector("#current-humidity");
 var currentUvIndex = document.querySelector("#current-uv");
 var searchResults = document.querySelector("#search-results");
+var inputList = document.querySelector("#input-list");
+var inputIndex = 0;
 
 
 var getCoordinates = function(city) {
+    weatherHeader.textContent = city.toLowerCase();
     // create API url
     var apiUrl = "http://api.openweathermap.org/geo/1.0/direct?q=" + city + "&limit=1&appid=cf497bbc93c8c77ef641ec280f1648f7";
 
@@ -36,7 +39,7 @@ var getCurrentWeather = function(lat, lon) {
     fetch(apiUrl).then(function(response) {
         if (response.ok) {
             response.json().then(function(data) {
-                console.log(data);
+                //console.log(data);
                 // get values for weather objects
 
                 // get icon
@@ -74,7 +77,7 @@ var getFutureWeather = function(lat, lon) {
     fetch(apiUrl).then(function(response) {
         if (response.ok) {
             response.json().then(function(data) {
-                console.log(data);
+                //console.log(data);
                 // use data to get today's date
                 var dateTime = data.list[0].dt_txt;
                 var date = dateTime.split(" ", 2);
@@ -102,19 +105,50 @@ var getFutureWeather = function(lat, lon) {
     });
 };
 
+var saveInput = function(city) {
+    city = city.toLowerCase();
+    localStorage.setItem(inputIndex, city);
+    loadInputListItem();
+    inputIndex++;
+};
+
+var loadInputListItem = function() {
+    var listItem = document.createElement("li");
+    listItem.textContent = localStorage.getItem(inputIndex);
+    listItem.classList.add("list-group-item");
+    inputList.appendChild(listItem);
+};
+
+var loadInputList = function() {
+    for (var i = 0; i < inputList.length; i++) {
+        var listItem = document.createElement("li");
+        listItem.textContent = localStorage.getItem(i);
+        listItem.classList.add("list-group-item");
+        inputList.appendChild(listItem);
+    }
+
+};
+
 searchButton.addEventListener("click", function()   {
     // check that there is user input
     if (userInput.value) {
         var cityName = userInput.value;
-        weatherHeader.textContent = cityName;
         userInput.value = "";
         getCoordinates(cityName);
+        saveInput(cityName);
     } else {
         window.alert("Please enter a city");
     }
+});
+
+inputList.addEventListener("click", function(event) {
+    //console.log(event.target.textContent);
+    getCoordinates(event.target.textContent);
 });
 
 currentIcon.style.visibility = "hidden";
 for (var i = 1; i < 6; i++) {
     document.querySelector("#card-icon-" + i).style.visibility = "hidden";
 }
+
+//loadInputList();
