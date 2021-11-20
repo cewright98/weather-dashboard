@@ -47,7 +47,7 @@ var getCurrentWeather = function(lat, lon) {
     fetch(apiUrl).then(function(response) {
         if (response.ok) {
             response.json().then(function(data) {
-                console.log(data);
+                //console.log(data);
                 // get values for weather objects
 
                 // get icon
