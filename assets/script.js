@@ -12,7 +12,7 @@ var inputList = document.querySelector("#input-list");
 
 var getCoordinates = function(city) {
     // create API url
-    var apiUrl = "http://api.openweathermap.org/geo/1.0/direct?q=" + city + "&limit=1&appid=cf497bbc93c8c77ef641ec280f1648f7";
+    var apiUrl = "https://api.openweathermap.org/geo/1.0/direct?q=" + city + "&limit=1&appid=cf497bbc93c8c77ef641ec280f1648f7";
 
     // fetch API url
     fetch(apiUrl).then(function(response) {
@@ -26,7 +26,6 @@ var getCoordinates = function(city) {
                     window.alert("Please enter a valid city");
                 } else {
                     weatherHeader.textContent = city.toLowerCase();
-                    saveInput(city);
                     // get coordinates
                     var cityLat = data[0].lat;
                     var cityLon = data[0].lon;
@@ -52,7 +51,7 @@ var getCurrentWeather = function(lat, lon) {
 
                 // get icon
                 currentIcon.style.visibility = "visible";
-                currentIcon.src = "http://openweathermap.org/img/wn/" + data.current.weather[0].icon + "@2x.png";
+                currentIcon.src = "https://openweathermap.org/img/wn/" + data.current.weather[0].icon + "@2x.png";
                 
                 var uvIndex = data.current.uvi;
                 currentTemp.textContent = "Temp: " + data.current.temp + " °F";
@@ -120,10 +119,10 @@ var getFutureWeather = function(lat, lon) {
 var saveInput = function(city) {
     city = city.toLowerCase();
     localStorage.setItem("city", city);
-    loadInputListItem();
+    loadInput();
 };
 
-var loadInputListItem = function() {
+var loadInput = function() {
     var listItem = document.createElement("li");
     listItem.textContent = localStorage.getItem("city");
     listItem.classList.add("list-group-item");
@@ -143,14 +142,17 @@ searchButton.addEventListener("click", function()   {
         var cityName = userInput.value;
         userInput.value = "";
         getCoordinates(cityName);
+        saveInput(cityName);
     } else {
         window.alert("Please enter a city");
     }
 });
 
 inputList.addEventListener("click", function(event) {
-    //console.log(event.target.textContent);
-    getCoordinates(event.target.textContent);
+    //console.log(event.target.value);
+    if (event.target.value === 0) {
+        getCoordinates(event.target.textContent);
+    }
 });
 
 hideIcons();
