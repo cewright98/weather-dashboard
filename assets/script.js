@@ -8,11 +8,9 @@ var currentHumidity = document.querySelector("#current-humidity");
 var currentUvIndex = document.querySelector("#current-uv");
 var searchResults = document.querySelector("#search-results");
 var inputList = document.querySelector("#input-list");
-var inputIndex = 0;
 
 
 var getCoordinates = function(city) {
-    weatherHeader.textContent = city.toLowerCase();
     // create API url
     var apiUrl = "http://api.openweathermap.org/geo/1.0/direct?q=" + city + "&limit=1&appid=cf497bbc93c8c77ef641ec280f1648f7";
 
@@ -20,12 +18,22 @@ var getCoordinates = function(city) {
     fetch(apiUrl).then(function(response) {
         if (response.ok) {
             response.json().then(function(data) {
-                // get coordinates
-                var cityLat = data[0].lat;
-                var cityLon = data[0].lon;
-                // pass coordinates to weather function
-                getCurrentWeather(cityLat, cityLon);
-                getFutureWeather(cityLat, cityLon);
+                //console.log(data);
+                //console.log(data.length);
+                
+                // check for valid city input
+                if (data.length === 0) {
+                    window.alert("Please enter a valid city");
+                } else {
+                    weatherHeader.textContent = city.toLowerCase();
+                    saveInput(city);
+                    // get coordinates
+                    var cityLat = data[0].lat;
+                    var cityLon = data[0].lon;
+                    // pass coordinates to weather function
+                    getCurrentWeather(cityLat, cityLon);
+                    getFutureWeather(cityLat, cityLon);
+                }
             });
         } 
     });
@@ -39,7 +47,7 @@ var getCurrentWeather = function(lat, lon) {
     fetch(apiUrl).then(function(response) {
         if (response.ok) {
             response.json().then(function(data) {
-                //console.log(data);
+                console.log(data);
                 // get values for weather objects
 
                 // get icon
@@ -80,24 +88,28 @@ var getFutureWeather = function(lat, lon) {
                 //console.log(data);
                 // use data to get today's date
                 var dateTime = data.list[0].dt_txt;
-                var date = dateTime.split(" ", 2);
-                weatherHeader.textContent = weatherHeader.textContent + " (" + date[0] + ")";
-                // loop to get values for weather objects for each card
-                var index = 6;
-                for (var i = 1; i < 6; i++) {
-                    // get date
-                    dateTime = data.list[index].dt_txt;
-                    date = dateTime.split(" ", 2);
+                var dateTimeArr = dateTime.split(" ", 2);
+                weatherHeader.textContent = weatherHeader.textContent + " (" + dateTimeArr[0] + ")";
 
+                var cardNumber = 0;
+
+                // loop to get values for weather objects for each card
+                for (var i = 0; i < data.list.length; i++) {
+                    // get date
+                    dateTime = data.list[i].dt_txt;
+                    dateTimeArr = dateTime.split(" ", 2);
+
+                    if (dateTimeArr[1] === "15:00:00") {
                     // get icon
-                    document.querySelector("#card-icon-" + i).style.visibility = "visible";
-                    document.querySelector("#card-icon-" + i).src = "http://openweathermap.org/img/wn/" + data.list[index].weather[0].icon + "@2x.png";
+                    document.querySelector("#card-icon-" + cardNumber).style.visibility = "visible";
+                    document.querySelector("#card-icon-" + cardNumber).src = "http://openweathermap.org/img/wn/" + data.list[i].weather[0].icon + "@2x.png";
                     
-                    document.querySelector("#card-date-" + i).textContent = date[0];
-                    document.querySelector("#card-temp-" + i).textContent = "Temp: " + data.list[index].main.temp + " °F";
-                    document.querySelector("#card-wind-" + i).textContent = "Wind: " + data.list[index].wind.speed + " MPH";
-                    document.querySelector("#card-humidity-" + i).textContent = "Humidity: " + data.list[index].main.humidity + " %";
-                    index = index + 8;
+                    document.querySelector("#card-date-" + cardNumber).textContent = dateTimeArr[0];
+                    document.querySelector("#card-temp-" + cardNumber).textContent = "Temp: " + data.list[i].main.temp + " °F";
+                    document.querySelector("#card-wind-" + cardNumber).textContent = "Wind: " + data.list[i].wind.speed + " MPH";
+                    document.querySelector("#card-humidity-" + cardNumber).textContent = "Humidity: " + data.list[i].main.humidity + " %";
+                    cardNumber++;
+                    }
                 }
                 
             });
@@ -107,26 +119,22 @@ var getFutureWeather = function(lat, lon) {
 
 var saveInput = function(city) {
     city = city.toLowerCase();
-    localStorage.setItem(inputIndex, city);
+    localStorage.setItem("city", city);
     loadInputListItem();
-    inputIndex++;
 };
 
 var loadInputListItem = function() {
     var listItem = document.createElement("li");
-    listItem.textContent = localStorage.getItem(inputIndex);
+    listItem.textContent = localStorage.getItem("city");
     listItem.classList.add("list-group-item");
     inputList.appendChild(listItem);
 };
 
-var loadInputList = function() {
-    for (var i = 0; i < inputList.length; i++) {
-        var listItem = document.createElement("li");
-        listItem.textContent = localStorage.getItem(i);
-        listItem.classList.add("list-group-item");
-        inputList.appendChild(listItem);
+var hideIcons = function() {
+    currentIcon.style.visibility = "hidden";
+    for (var i = 0; i < 5; i++) {
+        document.querySelector("#card-icon-" + i).style.visibility = "hidden";
     }
-
 };
 
 searchButton.addEventListener("click", function()   {
@@ -135,7 +143,6 @@ searchButton.addEventListener("click", function()   {
         var cityName = userInput.value;
         userInput.value = "";
         getCoordinates(cityName);
-        saveInput(cityName);
     } else {
         window.alert("Please enter a city");
     }
@@ -146,9 +153,4 @@ inputList.addEventListener("click", function(event) {
     getCoordinates(event.target.textContent);
 });
 
-currentIcon.style.visibility = "hidden";
-for (var i = 1; i < 6; i++) {
-    document.querySelector("#card-icon-" + i).style.visibility = "hidden";
-}
-
-//loadInputList();
+hideIcons();
