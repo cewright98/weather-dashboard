@@ -8,10 +8,11 @@ var currentHumidity = document.querySelector("#current-humidity");
 var currentUvIndex = document.querySelector("#current-uv");
 var searchResults = document.querySelector("#search-results");
 var inputList = document.querySelector("#input-list");
+var createSearchHistory = true;
 
 
 var getCoordinates = function(city) {
-    // create API url
+    // create API url to get lat and lon
     var apiUrl = "https://api.openweathermap.org/geo/1.0/direct?q=" + city + "&limit=1&appid=cf497bbc93c8c77ef641ec280f1648f7";
 
     // fetch API url
@@ -25,16 +26,22 @@ var getCoordinates = function(city) {
                 if (data.length === 0) {
                     window.alert("Please enter a valid city");
                 } else {
-                    weatherHeader.textContent = city.toLowerCase();
+                    weatherHeader.textContent = city;
+
+                    // create new search history button if new search
+                    if (createSearchHistory) {
+                        saveInput(city);
+                    }
                     // get coordinates
                     var cityLat = data[0].lat;
                     var cityLon = data[0].lon;
+
                     // pass coordinates to weather function
                     getCurrentWeather(cityLat, cityLon);
                     getFutureWeather(cityLat, cityLon);
                 }
             });
-        } 
+        }
     });
 };
 
@@ -141,8 +148,8 @@ searchButton.addEventListener("click", function()   {
     if (userInput.value) {
         var cityName = userInput.value;
         userInput.value = "";
+        createSearchHistory = true;
         getCoordinates(cityName);
-        saveInput(cityName);
     } else {
         window.alert("Please enter a city");
     }
@@ -151,6 +158,7 @@ searchButton.addEventListener("click", function()   {
 inputList.addEventListener("click", function(event) {
     //console.log(event.target.value);
     if (event.target.value === 0) {
+        createSearchHistory = false;
         getCoordinates(event.target.textContent);
     }
 });
