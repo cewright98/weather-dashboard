@@ -15,8 +15,14 @@ var getCoordinates = function(city) {
     // create API url to get lat and lon
     var apiUrl = "https://api.openweathermap.org/geo/1.0/direct?q=" + city + "&limit=1&appid=cf497bbc93c8c77ef641ec280f1648f7";
 
+    jQuery.ajaxPrefilter(function(options) {
+        if (options.crossDomain && jQuery.support.cors) {
+            options.url = 'https://cors-anywhere.herokuapp.com/' + apiUrl;
+        }
+    });
+    
     // fetch API url
-    fetch(apiUrl).then(function(response) {
+    fetch(options.url).then(function(response) {
         if (response.ok) {
             response.json().then(function(data) {
                 //console.log(data);
