@@ -15,14 +15,14 @@ var getCoordinates = function(city) {
     // create API url to get lat and lon
     var apiUrl = "https://api.openweathermap.org/geo/1.0/direct?q=" + city + "&limit=1&appid=cf497bbc93c8c77ef641ec280f1648f7";
 
-    jQuery.ajaxPrefilter(function(options) {
-        if (options.crossDomain && jQuery.support.cors) {
-            options.url = 'https://cors-anywhere.herokuapp.com/' + apiUrl;
-        }
-    });
+    // jQuery.ajaxPrefilter(function(options) {
+    //     if (options.crossDomain && jQuery.support.cors) {
+    //         options.url = 'https://cors-anywhere.herokuapp.com/' + apiUrl;
+    //     }
+    // });
     
     // fetch API url
-    fetch(options.url).then(function(response) {
+    fetch(apiUrl).then(function(response) {
         if (response.ok) {
             response.json().then(function(data) {
                 //console.log(data);
@@ -97,11 +97,14 @@ var getFutureWeather = function(lat, lon) {
     fetch(apiUrl).then(function(response) {
         if (response.ok) {
             response.json().then(function(data) {
-                //console.log(data);
+                // console.log(data);
                 // use data to get today's date
                 var dateTime = data.list[0].dt_txt;
                 var dateTimeArr = dateTime.split(" ", 2);
-                weatherHeader.textContent = weatherHeader.textContent + " (" + dateTimeArr[0] + ")";
+                var splitTime = dateTimeArr[0].split("-");
+                var formattedTime = splitTime[1] + '/' + splitTime[2] + '/' + splitTime[0];
+
+                weatherHeader.textContent = weatherHeader.textContent + " - " + formattedTime;
 
                 var cardNumber = 0;
 
@@ -110,13 +113,15 @@ var getFutureWeather = function(lat, lon) {
                     // get date
                     dateTime = data.list[i].dt_txt;
                     dateTimeArr = dateTime.split(" ", 2);
+                    var splitTime = dateTimeArr[0].split("-");
+                    var formattedTime = splitTime[1] + '/' + splitTime[2] + '/' + splitTime[0];
 
                     if (dateTimeArr[1] === "15:00:00") {
                     // get icon
                     document.querySelector("#card-icon-" + cardNumber).style.visibility = "visible";
                     document.querySelector("#card-icon-" + cardNumber).src = "http://openweathermap.org/img/wn/" + data.list[i].weather[0].icon + "@2x.png";
                     
-                    document.querySelector("#card-date-" + cardNumber).textContent = dateTimeArr[0];
+                    document.querySelector("#card-date-" + cardNumber).textContent = formattedTime;
                     document.querySelector("#card-temp-" + cardNumber).textContent = "Temp: " + data.list[i].main.temp + " °F";
                     document.querySelector("#card-wind-" + cardNumber).textContent = "Wind: " + data.list[i].wind.speed + " MPH";
                     document.querySelector("#card-humidity-" + cardNumber).textContent = "Humidity: " + data.list[i].main.humidity + " %";
